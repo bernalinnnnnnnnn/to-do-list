@@ -191,20 +191,20 @@ app.get('/delete-to-do', (req, res) => {
     }
 }); */
 
-app.post('/add-to-do', async (req, res) => {
+app.post('/add-to-do', async (req, res) => {// dyay method na ket post, tas route nga add-to-do nga agcacatch ti request ken response
     try {
-        const { username, title, lists } = req.body;
+        const { username, title, lists } = req.body; //aggapo yanti request body idjay insomia, which is jay json chuchu
         const date_modified = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-        const status = "true";
+        const status = "true"; //naideclare nga automatic dyay status na
 
         // Insert into 'titles' and return the generated ID
-        const titleInsertQuery = `
+        const titleInsertQuery = `  
             INSERT INTO titles (username, title, date_modified, status) 
             VALUES ($1, $2, $3, $4) RETURNING id
-        `;
+        `; // etuy ket dyay query tapos ag-insert dyay values nga inpasam yanti table nga title nga adda ti columns na nga
         const titleResult = await db.query(titleInsertQuery, [username, title, date_modified, status]);
 
-        // Retrieve the generated title_id
+        // Retrieve the generated title_id, detuy ket dyay id nga naggapo yanti title idyay table nga title
         const title_id = titleResult.rows[0].id;
 
         // Insert each list item with the correct title_id
@@ -237,7 +237,7 @@ app.post('/update-status', async (req, res) => {
 //delete to do
 app.post('/delete-to-do', async (req, res) => {
     try {
-        const { data: title_id } = req.body; // Extract title_id from the 'data' property
+        const { title_id } = req.body; // Extract title_id from the 'data' property
         
         // First, delete the associated lists
         const deleteListsQuery = "DELETE FROM lists WHERE title_id = $1";
@@ -274,8 +274,8 @@ app.post('/update-to-do', async (req, res) => {
 
         // Insert the new list items
         const listInsertQuery = "INSERT INTO lists (title_id, list_desc, status) VALUES ($1, $2, $3)";
-        for (const desc of list) {
-            await db.query(listInsertQuery, [title, desc, status]); // Insert the new list items with the same title_id
+        for (const list_desc of list) {
+            await db.query(listInsertQuery, [title, list_desc, status]); // Insert the new list items with the same title_id
         }
 
         res.json({ success: true, message: "To do successfully updated" });
